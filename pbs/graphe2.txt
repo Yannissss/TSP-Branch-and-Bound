@@ -1,0 +1,15 @@
+n_sommets 5
+oriente 0
+value 1
+DEBUT_DEF_ARETES
+0 1 3
+0 2 4
+0 3 2
+0 4 7
+1 2 4
+1 3 7
+1 4 3
+2 3 5
+2 4 8
+3 4 6
+FIN_DEF_ARETES
