@@ -20,7 +20,20 @@ int main(int argc, char** argv) {
 
     graph_t graph;
     graph_read(&graph, filepath);
+
     graph_show(&graph);
+
+    edge_t* tree = (edge_t*)malloc(sizeof(edge_t) * (graph.vertices - 1));
+
+    graph_minimum_spanning_tree(&graph, tree);
+
+    printf("Minimum spanning tree: ");
+    for (int i = 0; i < graph.vertices - 1; i++)
+        printf("(%d, %d, %d) ", tree[i].u, tree[i].v, tree[i].weight);
+    printf("\n");
+
+    free(tree);
+
     graph_drop(&graph);
 
     return EXIT_SUCCESS;

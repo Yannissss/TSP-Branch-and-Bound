@@ -18,6 +18,7 @@ void print_veci(int* v, int len) {
     else
         printf("inf]");
 }
+
 void graph_read(graph_t* graph, char* filepath) {
     char str_tmp[128];
     FILE* file;
@@ -41,6 +42,7 @@ void graph_read(graph_t* graph, char* filepath) {
             for (int j = 0; j < vertices; j++) {
                 graph->weights[i][j] = INT_MAX;
             }
+            graph->weights[i][i] = 0;
         }
 
         // Lecture des caractéristiques
@@ -95,4 +97,91 @@ void graph_show(graph_t* graph) {
     }
     printf("    ]\n");
     printf("}\n");
+}
+
+int cmp_edge(const void* a, const void* b) {
+    edge_t* lhs = (edge_t*)a;
+    edge_t* rhs = (edge_t*)b;
+    if (lhs->weight < rhs->weight) {
+        return -1;
+    } else if (lhs->weight == rhs->weight) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+edge_t* graph_sorted_edges(graph_t* graph) {
+    int vertices = graph->vertices;
+    int num_edges = vertices * (vertices - 1) / 2;
+    edge_t* edges = (edge_t*)malloc(sizeof(edge_t) * num_edges);
+
+    int i = 0;
+    for (int u = 0; u < vertices; u++) {
+        for (int v = u + 1; v < vertices; v++) {
+            edges[i].u = u;
+            edges[i].v = v;
+            edges[i].weight = graph->weights[u][v];
+            i++;
+        }
+    }
+
+    // Tri des arếtes
+    qsort((void*)edges, num_edges, sizeof(edge_t), cmp_edge);
+
+    return edges;
+}
+
+// Renvoie le représentant d'un élément dans une structure Union-Find
+int uf_find(int* uf, int x) {
+    int next = uf[x];
+    if (next != x) {
+        uf[x] = uf_find(uf, next);
+    }
+    return uf[x];
+}
+
+int graph_minimum_spanning_tree(graph_t* graph, edge_t* tree) {
+    int vertices = graph->vertices;
+
+    // Composantes connexes
+    int* components = (int*)malloc(sizeof(int) * vertices);
+    for (int u = 0; u < vertices; u++)
+        components[u] = u;
+
+    // Arêtes triées
+    int num_edges = vertices * (vertices - 1) / 2;
+    edge_t* edges = graph_sorted_edges(graph);
+
+    // Algorithme Kruskal
+    int weight = 0;
+    edge_t* edge = &edges[0];
+    edge_t* end = edges + num_edges;
+    for (int i = 0; i < vertices - 1; i++) {
+        while (edge < end) {
+            int u = edge->u;
+            int v = edge->v;
+
+            int u_root = uf_find(components, u);
+            int v_root = uf_find(components, v);
+
+            if (u_root != v_root) {
+                components[u_root] = v_root;
+                edge++;
+                break;
+            }
+
+            edge++;
+        }
+
+        if (edge < end) {
+            tree[i] = *edge;
+            weight += edge->weight;
+        }
+    }
+
+    free(components);
+    free(edges);
+
+    return weight;
 }
