@@ -19,6 +19,16 @@ void print_veci(int* v, int len) {
         printf("inf]");
 }
 
+void print_vecedge(edge_t* v, int len) {
+    printf("[");
+    for (int i = 0; i < len - 1; i++) {
+        edge_t e = v[i];
+        printf("(%d, %d, %d), ", e.u, e.v, e.weight);
+    }
+    edge_t e = v[len - 1];
+    printf("(%d, %d, %d)]", e.u, e.v, e.weight);
+}
+
 void graph_read(graph_t* graph, char* filepath) {
     char str_tmp[128];
     FILE* file;
@@ -141,7 +151,7 @@ int uf_find(int* uf, int x) {
     return uf[x];
 }
 
-int graph_minimum_spanning_tree(graph_t* graph, edge_t* tree) {
+void graph_minimum_spanning_tree(graph_t* graph, tree_t* tree) {
     int vertices = graph->vertices;
 
     // Composantes connexes
@@ -175,13 +185,29 @@ int graph_minimum_spanning_tree(graph_t* graph, edge_t* tree) {
         }
 
         if (edge < end) {
-            tree[i] = *edge;
+            tree->edges[i] = *edge;
             weight += edge->weight;
         }
     }
 
+    tree->weight = weight;
+
     free(components);
     free(edges);
+}
 
-    return weight;
+void tree_new(tree_t* tree, graph_t* graph) {
+    tree->weight = 0;
+    tree->num_edges = graph->vertices - 1;
+    tree->edges = (edge_t*)malloc(sizeof(edge_t) * (graph->vertices - 1));
+}
+
+void tree_drop(tree_t* tree) { free(tree->edges); }
+
+void tree_show(tree_t* tree) {
+    printf("tree_t {\n");
+    printf("    weight: %d, \n", tree->weight);
+    printf("    edges: ");
+    print_vecedge(tree->edges, tree->num_edges);
+    printf("\n}\n");
 }

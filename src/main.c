@@ -19,21 +19,21 @@ int main(int argc, char** argv) {
     }
 
     graph_t graph;
+    tree_t min_span_tree;
+
     graph_read(&graph, filepath);
 
+    printf("Graph = ");
     graph_show(&graph);
 
-    edge_t* tree = (edge_t*)malloc(sizeof(edge_t) * (graph.vertices - 1));
+    tree_new(&min_span_tree, &graph);
 
-    graph_minimum_spanning_tree(&graph, tree);
+    graph_minimum_spanning_tree(&graph, &min_span_tree);
 
-    printf("Minimum spanning tree: ");
-    for (int i = 0; i < graph.vertices - 1; i++)
-        printf("(%d, %d, %d) ", tree[i].u, tree[i].v, tree[i].weight);
-    printf("\n");
+    printf("Minimum spanning tree = ");
+    tree_show(&min_span_tree);
 
-    free(tree);
-
+    tree_drop(&min_span_tree);
     graph_drop(&graph);
 
     return EXIT_SUCCESS;
